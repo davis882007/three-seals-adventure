@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#173c34">
+  <meta name="description" content="國小國語四選一冒險遊戲：勇者試煉">
+  <title>勇者試煉｜國語打怪 RPG</title>
+  <style>
+    :root{--ink:#26342d;--paper:#fffaf0;--gold:#f2b94b;--teal:#176b65;--red:#bc4d4d;--shadow:0 16px 44px rgba(25,42,33,.25)}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:"PingFang TC","Noto Sans TC",system-ui,sans-serif;color:var(--ink)}
+    body{background:#173c34 url('assets/backgrounds/forest.png') center/cover fixed no-repeat;overflow-x:hidden}
+    button{font:inherit}.map-link{position:fixed;z-index:50;top:max(12px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));padding:9px 15px;border:2px solid #71451e;border-radius:999px;color:#fffaf0;background:rgba(23,107,101,.95);box-shadow:0 5px 12px rgba(20,35,28,.24);text-decoration:none;font-weight:850}.map-link:hover{transform:translateY(-2px)}.app{min-height:100vh;display:grid;place-items:center;padding:18px}
+    .frame{width:min(1180px,100%);min-height:min(760px,calc(100vh - 36px));position:relative;border:5px solid rgba(75,48,25,.72);border-radius:28px;background:rgba(255,250,240,.9);box-shadow:var(--shadow);overflow:hidden}
+    .frame:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.58),transparent 34%,rgba(27,91,76,.11));pointer-events:none}
+    .screen{display:none;position:relative;z-index:1;min-height:min(760px,calc(100vh - 36px));padding:22px}.screen.active{display:flex}
+    #startScreen{align-items:center;justify-content:center;flex-direction:column;text-align:center;background:linear-gradient(rgba(18,57,47,.15),rgba(18,57,47,.5)),url('assets/backgrounds/forest.png') center/cover}
+    .title-wrap{position:relative;width:min(620px,94%)}.title-wrap img{width:100%;display:block;filter:drop-shadow(0 16px 14px rgba(22,31,24,.32))}.title-copy{position:absolute;inset:0;display:grid;place-items:center;padding-bottom:2%;font-family:"Kaiti TC","DFKai-SB",serif;font-size:clamp(2.2rem,7vw,5.2rem);font-weight:900;color:#fff6d6;text-shadow:0 3px 0 #58351f,0 0 12px #f2b94b;letter-spacing:.12em}
+    .start-card{max-width:620px;margin-top:-12px;padding:18px 26px 24px;background:rgba(255,250,240,.95);border:3px solid #80552f;border-radius:22px;box-shadow:var(--shadow)}.start-card p{font-size:1.08rem;line-height:1.7;margin:.35rem 0 1rem}
+    .primary,.choice,.shop-btn,.ghost-btn{border:0;border-radius:15px;cursor:pointer;transition:.18s transform,.18s filter,.18s box-shadow}.primary{padding:13px 32px;background:linear-gradient(#f6c75f,#db8f28);color:#3b2818;font-weight:900;font-size:1.14rem;border:3px solid #71451e;box-shadow:0 6px 0 #71451e}.primary:hover,.choice:hover,.shop-btn:hover,.ghost-btn:hover{transform:translateY(-2px);filter:brightness(1.04)}.primary:active,.choice:active,.shop-btn:active,.ghost-btn:active{transform:translateY(2px)}
+    #gameScreen{flex-direction:column;background:linear-gradient(rgba(255,255,255,.02),rgba(20,69,55,.15)),url('assets/backgrounds/forest.png') center/cover}
+    .hud{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}.hud-card{background:rgba(255,250,240,.92);border:2px solid rgba(79,53,28,.5);border-radius:16px;padding:10px 14px;box-shadow:0 6px 14px rgba(30,45,36,.15)}.stage-name{text-align:center;font-weight:900;font-size:1.08rem}.stats{display:flex;gap:12px;align-items:center;font-weight:800}.stats.right{justify-content:flex-end}.bar{height:13px;width:min(180px,22vw);border-radius:99px;background:#e7d7bf;overflow:hidden;border:2px solid #6f5036}.bar span{display:block;height:100%;transition:width .35s}.hp-fill{background:linear-gradient(90deg,#d44b50,#ef7673)}.enemy-fill{background:linear-gradient(90deg,#7d4aa0,#bd6a91)}
+    .arena{position:relative;display:grid;grid-template-columns:1fr 1fr;align-items:end;min-height:330px;margin:8px 0 -6px}.actor{text-align:center;position:relative}.actor img{max-height:310px;max-width:80%;object-fit:contain;filter:drop-shadow(0 14px 10px rgba(20,30,24,.3));transform-origin:bottom center}.actor.mage.attack img{animation:mageAttack .55s ease}.actor.enemy.hit img{animation:enemyHit .55s ease}.actor.mage.hurt img{animation:hurt .48s ease}.actor-name{display:inline-block;background:rgba(255,250,240,.9);border:2px solid #725139;border-radius:99px;padding:5px 14px;font-weight:900}.float-text{position:absolute;top:25%;left:50%;font-size:2rem;font-weight:1000;color:#fff7b2;text-shadow:0 2px 4px #402713;animation:floatUp .85s both;pointer-events:none}
+    .quiz{background:rgba(255,250,240,.97);border:3px solid #705037;border-radius:22px;padding:18px;box-shadow:var(--shadow)}.meta{display:flex;justify-content:space-between;gap:12px;color:#587166;font-weight:800;margin-bottom:7px}.question{font-size:clamp(1.03rem,2vw,1.25rem);font-weight:800;line-height:1.6;margin:0 0 14px}.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice{text-align:left;padding:12px 14px;background:#fff;border:2px solid #bca889;color:#293b32;font-weight:700;line-height:1.45;min-height:52px}.choice .mark{display:inline-grid;place-items:center;width:27px;height:27px;margin-right:8px;border-radius:50%;background:#e6eee5;color:#245d53;font-weight:900}.choice.correct{background:#dff3df;border-color:#3e8c55}.choice.wrong{background:#f8dddd;border-color:#b64b4b}.choice:disabled{cursor:default;filter:none}.feedback{min-height:48px;margin-top:10px;padding:10px 13px;border-radius:12px;background:#edf4ee;line-height:1.5;font-weight:700}.feedback:empty{display:none}.next-row{display:flex;justify-content:flex-end;margin-top:10px}.hidden{display:none!important}
+    #shopScreen{align-items:center;justify-content:center;flex-direction:column;text-align:center;background:linear-gradient(rgba(51,31,16,.22),rgba(51,31,16,.45)),url('assets/backgrounds/shop.png') center/cover}.shop-panel{width:min(920px,100%);padding:22px;background:rgba(255,249,232,.94);border:4px solid #704720;border-radius:26px;box-shadow:var(--shadow)}.shop-panel h2,.result-panel h2{margin:0 0 8px;font-family:"Kaiti TC","DFKai-SB",serif;font-size:2.2rem}.shop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}.shop-item{background:#fffdf6;border:2px solid #b28a58;border-radius:18px;padding:12px}.shop-item img{width:110px;height:110px;object-fit:contain}.shop-item h3{margin:5px 0}.shop-item p{margin:5px 0;min-height:48px;line-height:1.5}.shop-btn{width:100%;padding:10px;background:#1d7468;color:white;border:2px solid #0e4f47;font-weight:900}.shop-btn:disabled{opacity:.45;cursor:not-allowed}.shop-message{min-height:28px;font-weight:800;color:#7b3e28}
+    #resultScreen{align-items:center;justify-content:center;background:linear-gradient(rgba(19,66,53,.22),rgba(19,66,53,.5)),url('assets/backgrounds/forest.png') center/cover}.result-panel{text-align:center;width:min(650px,100%);padding:28px;background:rgba(255,250,240,.96);border:4px solid #76502f;border-radius:26px;box-shadow:var(--shadow)}.result-score{font-size:clamp(3rem,10vw,6rem);font-weight:1000;color:#176b65;line-height:1}.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.result-grid div{padding:12px 8px;background:#f0ead9;border-radius:13px}.result-grid strong{display:block;font-size:1.35rem;color:#8b4a30}.ghost-btn{padding:12px 23px;background:#fff;border:2px solid #5f766c;color:#30483e;font-weight:900;margin-left:8px}
+    @keyframes mageAttack{50%{transform:translate(18%, -5%) rotate(3deg) scale(1.05)}}@keyframes enemyHit{25%,75%{transform:translateX(-13px) rotate(-4deg);filter:brightness(1.7) drop-shadow(0 0 16px #ffd85a)}50%{transform:translateX(13px) rotate(4deg)}}@keyframes hurt{25%,75%{transform:translateX(-10px);filter:saturate(.2) sepia(1)}}@keyframes floatUp{0%{opacity:0;transform:translate(-50%,20px) scale(.7)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,-70px) scale(1.15)}}
+    @media(max-width:720px){.app{padding:0}.frame{min-height:100vh;border-width:0;border-radius:0}.screen{min-height:100vh;padding:10px}.hud{grid-template-columns:1fr 1fr}.stage-name{grid-column:1/-1;grid-row:1}.hud-card{padding:7px 9px}.bar{width:28vw}.arena{min-height:235px}.actor img{max-height:220px;max-width:94%}.actor-name{font-size:.86rem}.quiz{padding:13px}.choices{grid-template-columns:1fr}.choice{min-height:46px;padding:9px 11px}.question{line-height:1.48}.shop-grid{grid-template-columns:1fr}.shop-panel{padding:16px}.shop-item{display:grid;grid-template-columns:78px 1fr;gap:2px 10px;text-align:left}.shop-item img{width:78px;height:78px;grid-row:1/4}.shop-item p{min-height:0}.result-grid{grid-template-columns:1fr 1fr}.title-copy{font-size:clamp(2rem,11vw,4rem)}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.actor img,.float-text{animation-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <a class="map-link" href="../大冒險地圖/index.html" aria-label="回到三印大冒險地圖">← 回到大地圖</a>
+  <main class="app">
+    <section class="frame" aria-live="polite">
+      <section id="startScreen" class="screen active">
+        <div class="title-wrap"><img src="assets/items/title-plaque.png" alt="木製奇幻標題牌"><div class="title-copy">勇者試煉</div></div>
+        <div class="start-card"><p>化身 100 HP 魔法師，依序挑戰五隻怪物。答對就施放魔法、獲得金幣；答錯會受傷，但也會立刻看見正解。</p><button id="startBtn" class="primary">開始試煉</button></div>
+      </section>
+
+      <section id="gameScreen" class="screen">
+        <header class="hud">
+          <div class="hud-card"><div class="stats"><span>魔法師</span><span id="hpText">100 / 100 HP</span></div><div class="bar"><span id="hpBar" class="hp-fill" style="width:100%"></span></div></div>
+          <div id="stageName" class="hud-card stage-name">第一關・野狼</div>
+          <div class="hud-card"><div class="stats right"><span>金幣</span><span id="coinText">0</span></div><div class="bar"><span id="enemyBar" class="enemy-fill" style="width:100%"></span></div></div>
+        </header>
+        <div class="arena">
+          <div id="mageActor" class="actor mage"><img src="assets/characters/mage.png" alt="魔法師"><div><span class="actor-name">魔法師</span></div></div>
+          <div id="enemyActor" class="actor enemy"><img id="enemyImage" src="assets/characters/wolf.png" alt="野狼"><div><span id="enemyName" class="actor-name">野狼</span></div></div>
+        </div>
+        <article class="quiz">
+          <div class="meta"><span id="questionCount">第 1 / 20 題</span><span id="category">字音字形</span></div>
+          <p id="question" class="question"></p>
+          <div id="choices" class="choices"></div>
+          <div id="feedback" class="feedback"></div>
+          <div class="next-row"><button id="nextBtn" class="primary hidden">繼續</button></div>
+        </article>
+      </section>
+
+      <section id="shopScreen" class="screen">
+        <div class="shop-panel">
+          <h2>木屋商店</h2><p id="shopStatus">整理裝備，再挑戰下一關！</p>
+          <div class="shop-grid">
+            <article class="shop-item"><img src="assets/items/healing-potion.png" alt="回血藥水"><div><h3>回血藥水</h3><p>回復 30 HP（最多 100）</p><button class="shop-btn" data-item="potion">25 金幣</button></div></article>
+            <article class="shop-item"><img src="assets/items/attack-crystal.png" alt="攻擊水晶"><div><h3>攻擊水晶</h3><p>之後答對時，魔法傷害永久 +10</p><button class="shop-btn" data-item="crystal">30 金幣</button></div></article>
+            <article class="shop-item"><img src="assets/items/revive-charm.png" alt="復活符"><div><h3>復活符</h3><p>倒下時自動復活並回復 50 HP</p><button class="shop-btn" data-item="revive">45 金幣</button></div></article>
+          </div>
+          <div id="shopMessage" class="shop-message"></div>
+          <button id="leaveShopBtn" class="primary">前往下一關</button>
+        </div>
+      </section>
+
+      <section id="resultScreen" class="screen">
+        <div class="result-panel"><h2 id="resultTitle">試煉完成！</h2><div id="resultScore" class="result-score">0</div><p>答對率</p><div class="result-grid"><div><strong id="correctResult">0 / 20</strong>答對題數</div><div><strong id="coinResult">0</strong>剩餘金幣</div><div><strong id="hpResult">0</strong>剩餘 HP</div></div><p id="resultComment"></p><button id="retryBtn" class="primary">重新試煉</button><button id="reviewBtn" class="ghost-btn">查看錯題</button><div id="wrongList" class="hidden" style="text-align:left;margin-top:18px;line-height:1.6"></div></div>
+      </section>
+    </section>
+  </main>
+<script>
+const ADVENTURE_KEY='starmathAdventureV1';
+function awardAdventureSeal(seal){let data={};try{data=JSON.parse(localStorage.getItem(ADVENTURE_KEY))||{}}catch(_){data={}}data.startedAt=Number(data.startedAt)||Date.now();data.seals={history:false,idiom:false,hero:false,...(data.seals||{})};data.gate={history:false,idiom:false,hero:false,...(data.gate||{})};data.seals[seal]=true;localStorage.setItem(ADVENTURE_KEY,JSON.stringify(data))}
+const QUESTIONS = [
+ {type:'字音字形',q:'「這碗濃□的蘑菇湯香味四溢，讓人食指大動。」空格中應填入何者？',o:['綢','稠','雕','凋'],a:1,e:''},
+ {type:'字詞義及運用',q:'「聯袂」的意思是什麼？',o:['姓名相同。','串通勾結。','接連而不中斷。','衣袖相連。比喻攜手、一同'],a:3,e:''},
+ {type:'字詞義及運用',q:'「擴大」的「擴」意思為何？',o:['咀嚼。','光亮。','巨大。','放大。'],a:3,e:''},
+ {type:'字詞義及運用',q:'「粉圓□□在茶湯中，吸入嘴裡，輕柔撫觸舌尖，滑動而過。」空格中應填入何者？',o:['進出','流動','徘徊','徜徉'],a:3,e:''},
+ {type:'文意理解',q:'作者提到「泡菜與臭豆腐」、「油條與豆漿」等例子，主要是為了說明什麼？',o:['藉由大眾熟知的食物搭配，幫助讀者理解「粉圓與奶茶」交集所產生的美妙滋味。','強調臺灣人非常擅長運用不同的食材，改變傳統小吃的烹調方式。','只有將臭豆腐等鹹食和奶茶等甜食融合，才是走向世界美食的唯一方法。','說明臺灣飲食文化不斷演進，因此傳統小吃終究會被新興的珍珠奶茶完全取代。'],a:0,e:''},
+ {type:'文意理解',q:'作者在第一段提到珍珠奶茶是「臺灣之光」，並在第七段總結「讓世界見識到臺灣飲食文化源源不絕的創新力量」。下列哪一項最能支持作者的觀點？',o:['奶和茶的結合相傳起源於唐朝。當年文成公主嫁給西藏的松贊干布，就將烹茶技術傳授給當地人。','珍珠奶茶不僅融合了茶香與粉圓口感，更出現珍珠披薩、拉麵和各種冰品，充份展現跨界融合的無限可能。','珍珠奶茶的形式變化甚微，四十年來作為基底的茶品依然只有傳統的紅茶。','因為珍珠奶茶在臺灣大街小巷隨處可見，所以它成功讓臺灣成為全球唯一的飲品大國。'],a:1,e:''},
+ {type:'標點符號',q:'「珍珠奶茶不僅是一種飲品□更成為一股全球跨界美食的靈感來源□有的推出珍珠奶茶披薩，將起司與煉乳結合粉圓，鋪在披薩餅皮上□有的在熱騰騰的拉麵加上一大匙粉圓，風味獨特□還有以珍珠奶茶為口味的冰品，融合了茶香與粉圓口感。這些各式各樣的創意，充分展現珍珠奶茶跨界融合的無限可能□」空格中依序應填入何者？',o:['。，，，。','？，；；！','，。；；。','，。？？。'],a:2,e:''},
+ {type:'標點符號',q:'「珍珠奶茶美味的關鍵是什麼□就在於粉圓和奶茶的聯袂演出□」空格中依序應填入何者？',o:['：。','？。','！。','：？'],a:1,e:''},
+ {type:'標點符號',q:'「珍珠奶茶的發明□表現一種粉圓與奶茶的搭配美感□這類例子在食物中還不少□例如□泡菜與臭豆腐□油條與豆漿□五味醬與章魚……□」空格中依序應填入何者？',o:['，，，。。。！','，，，：，。！','：，，：，。。','，，，：，，。'],a:3,e:''},
+ {type:'基本修辭',q:'「珍珠奶茶美味的關鍵是什麼？就在於粉圓和奶茶的聯袂演出。一方面粉圓要講究彈勁，不可黏稠，一方面奶茶必須新鮮香濃，才能激盪出令人難忘的美妙風味。」這句話使用了何種修辭技巧？',o:['設問','摹寫','轉化','引用'],a:0,e:''},
+ {type:'基本修辭',q:'「它（珍珠奶茶）取悅著味蕾，如同一場優美的舞蹈，粉圓徜徉在茶湯中，吸入嘴裡，輕柔撫觸舌尖，滑動而過。」這句話使用了何種修辭技巧？',o:['設問','排比','轉化','引用'],a:2,e:''},
+ {type:'基本修辭',q:'說話或作文的時候，常常引用一些俗語、諺語、格言、名言、詩詞佳句做例證，增加別人信服的力量，這種修辭方法稱為「引用」修辭。下列文句，何者使用「引用」修辭？',o:['臺灣憑著先進的科技業，已成為世界重要的「科技重鎮」。','據說他們愛上這種清香美味的奶茶，已經到了「寧可三日無糧，不可一日無茶」的地步。','如今，它不僅受到臺灣人喜愛，更風靡全球，已被譽為另類的「臺灣之光」。','酸甜的愛文芒果在炎炎夏日裡，被譽為當季的「水果之王」。'],a:1,e:''},
+ {type:'基本修辭',q:'「每一顆粉圓溜進嘴裡，都像是一次小小的驚喜。」本句使用譬喻修辭，下列何者也使用了相同的修辭技巧？',o:['珍珠奶茶美味的關鍵是什麼？就在於粉圓和奶茶的聯袂演出。','粉圓徜徉在茶湯中，吸入嘴裡，輕柔撫觸舌尖，滑動而過。','據說他們愛上這種清香美味的奶茶，已經到了「寧可三日無糧，不可一日無茶」的地步。','它取悅著味蕾，如同一場優美的舞蹈。'],a:3,e:'①設問修辭。②轉化修辭。③引用修辭。④譬喻修辭。'},
+ {type:'基本修辭',q:'「據說他們愛上這種清香美味的奶茶，已經到了『寧可三日無糧，不可一日無茶』的地步。」這句話使用了何種修辭技巧？',o:['設問','摹寫','轉化','引用'],a:3,e:''},
+ {type:'其他',q:'「遞進複句」是由兩個或兩個以上的分句組成，前一個分句表示一個意思，後一個分句在範圍、數量、程度、時間等方面所表示的意思，則比前句更進一層。下列文句，何者使用這樣的句型？',o:['這個演員不僅有出色的外表，更擁有精湛的演技。','即使遇到不講理的病人，這位醫師還是耐心以待。','儘管前方的道路崎嶇，但是他仍勇敢向前行。','爸爸是學校的老師，也是一位業餘作家。'],a:0,e:'①「不僅……更……」是遞進複句。②「即使……」是假設複句。③「儘管……但是……」是轉折複句。④「是……也是……」是並列複句。'},
+ {type:'生字延伸成語',q:'「指人民不務農業而從事工、商。後用來指人不求事物的根本大端，只重視微末小節。」是哪個詞語的意思？',o:['為人作嫁','捨本逐末','兔死狗烹','畫蛇添足'],a:1,e:''},
+ {type:'生字延伸成語',q:'「水與乳融合在一起。比喻彼此關係密切，契合無間。」是哪個詞語的意思？',o:['兔死狗烹','為人作嫁','水乳交融','如虎添翼'],a:2,e:''},
+ {type:'生字延伸成語',q:'「猛虎生出雙翅。比喻強有力者又增添生力軍，使之更強。」是哪個詞語的意思？',o:['如虎添翼','畫蛇添足','水乳交融','兔死狗烹'],a:0,e:''},
+ {type:'生字延伸成語',q:'「兔子死盡了，用來捕兔的獵狗因為失去了作用而被烹食。比喻事成之後，有功之人即遭到殺戮或見棄的命運。」是哪個詞語的意思？',o:['水乳交融','畫蛇添足','兔死狗烹','捨本逐末'],a:2,e:''},
+ {type:'生字延伸成語',q:'下列何者與「水乳交融」意思相反？',o:['本末倒置','如膠似漆','水火不容','弄巧成拙'],a:2,e:'①本末倒置：顛倒事物的主從、輕重、先後等關係。②如膠似漆：比喻關係親密，感情深厚。③水火不容：比喻互相對立，不能相容。④弄巧成拙：本想取巧，卻反而敗事。'}
+];
+const ENEMIES=[
+ {name:'野狼',img:'wolf.png',damage:10},{name:'毒蠍',img:'scorpion.png',damage:12},{name:'惡鬼',img:'oni.png',damage:14},{name:'巨龍',img:'dragon.png',damage:16},{name:'魔王',img:'demon-king.png',damage:18}
+];
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let state;
+function reset(){state={index:0,hp:100,coins:0,correct:0,attack:25,revives:0,enemyHp:100,answered:false,wrong:[]};updateHud();show('startScreen')}
+function show(id){$$('.screen').forEach(x=>x.classList.toggle('active',x.id===id))}
+function stage(){return Math.floor(state.index/4)}
+function updateHud(){
+ const s=Math.min(stage(),4), en=ENEMIES[s]; $('#hpText').textContent=`${state.hp} / 100 HP`;$('#hpBar').style.width=`${state.hp}%`;$('#coinText').textContent=state.coins;
+ $('#stageName').textContent=`第${'一二三四五'[s]}關・${en.name}`;$('#enemyName').textContent=en.name;$('#enemyImage').src=`assets/characters/${en.img}`;$('#enemyImage').alt=en.name;$('#enemyBar').style.width=`${state.enemyHp}%`;
+}
+function start(){show('gameScreen');renderQuestion()}
+function renderQuestion(){
+ state.answered=false;const x=QUESTIONS[state.index];updateHud();$('#questionCount').textContent=`第 ${state.index+1} / ${QUESTIONS.length} 題`;$('#category').textContent=x.type;$('#question').textContent=x.q;$('#feedback').textContent='';$('#nextBtn').classList.add('hidden');
+ $('#choices').innerHTML=x.o.map((v,i)=>`<button class="choice" data-i="${i}"><span class="mark">${'ABCD'[i]}</span>${v}</button>`).join('');$$('.choice').forEach(b=>b.addEventListener('click',()=>answer(Number(b.dataset.i))));
+}
+function burst(target,text){const el=document.createElement('span');el.className='float-text';el.textContent=text;target.append(el);setTimeout(()=>el.remove(),900)}
+function answer(i){
+ if(state.answered)return;state.answered=true;const x=QUESTIONS[state.index],ok=i===x.a;$$('.choice').forEach((b,n)=>{b.disabled=true;if(n===x.a)b.classList.add('correct');if(n===i&&!ok)b.classList.add('wrong')});
+ if(ok){state.correct++;state.coins+=15;state.enemyHp=Math.max(0,state.enemyHp-state.attack);$('#mageActor').classList.add('attack');$('#enemyActor').classList.add('hit');burst($('#enemyActor'),`-${state.attack}`);$('#feedback').textContent='答對了！魔法命中，獲得 15 金幣。';}
+ else{state.hp=Math.max(0,state.hp-ENEMIES[stage()].damage);state.wrong.push(state.index);$('#mageActor').classList.add('hurt');burst($('#mageActor'),`-${ENEMIES[stage()].damage} HP`);$('#feedback').textContent=`答錯了。正解是 ${'ABCD'[x.a]}：${x.o[x.a]}${x.e?' '+x.e:''}`;}
+ setTimeout(()=>$$('.actor').forEach(a=>a.classList.remove('attack','hit','hurt')),650);updateHud();$('#nextBtn').textContent=state.hp<=0?'查看結果':'繼續';$('#nextBtn').classList.remove('hidden');
+}
+function next(){
+ if(state.hp<=0){if(state.revives>0){state.revives--;state.hp=50;$('#feedback').textContent='復活符發出金光！回復 50 HP，繼續試煉。';updateHud();$('#nextBtn').textContent='繼續';return}else return finish(false)}
+ const completedStage=(state.index+1)%4===0;state.index++;
+ if(state.index>=QUESTIONS.length)return finish(true);
+ if(completedStage){show('shopScreen');$('#shopMessage').textContent='';updateShop();return}
+ renderQuestion();
+}
+function updateShop(){$('#shopStatus').textContent=`目前 ${state.hp} HP・${state.coins} 金幣・攻擊 ${state.attack}${state.revives?`・復活符 ${state.revives} 張`:''}`;$$('.shop-btn').forEach(b=>{const cost={potion:25,crystal:30,revive:45}[b.dataset.item];b.disabled=state.coins<cost||(b.dataset.item==='potion'&&state.hp===100)})}
+function buy(item){const data={potion:{cost:25},crystal:{cost:30},revive:{cost:45}}[item];if(state.coins<data.cost)return;state.coins-=data.cost;if(item==='potion'){state.hp=Math.min(100,state.hp+30);$('#shopMessage').textContent='喝下藥水，精神好多了！'}if(item==='crystal'){state.attack+=10;$('#shopMessage').textContent='水晶融入法杖，攻擊力提升！'}if(item==='revive'){state.revives++;$('#shopMessage').textContent='復活符已放進背包。'}updateShop()}
+function leaveShop(){state.enemyHp=100;show('gameScreen');renderQuestion()}
+function finish(cleared){if(cleared)awardAdventureSeal('hero');show('resultScreen');const rate=Math.round(state.correct/QUESTIONS.length*100);$('#resultScore').textContent=`${rate}%`;$('#correctResult').textContent=`${state.correct} / ${QUESTIONS.length}`;$('#coinResult').textContent=state.coins;$('#hpResult').textContent=state.hp;$('#resultTitle').textContent=cleared?'五關試煉完成！':'勇者暫時休息';$('#resultComment').textContent=rate===100?'完美通關！你的國語魔法已經爐火純青。':rate>=80?'表現精彩！再複習幾題就能完美通關。':rate>=60?'成功累積了不少經驗，看看錯題再挑戰一次吧！':'別氣餒，真正的勇者會從每一次挑戰變得更強。';$('#wrongList').classList.add('hidden');$('#reviewBtn').textContent='查看錯題'}
+function toggleWrong(){const box=$('#wrongList');box.classList.toggle('hidden');$('#reviewBtn').textContent=box.classList.contains('hidden')?'查看錯題':'收起錯題';box.innerHTML=state.wrong.length?'<h3>錯題回顧</h3>'+state.wrong.map(i=>`<p><strong>第 ${i+1} 題：</strong>${QUESTIONS[i].q}<br>正解：${'ABCD'[QUESTIONS[i].a]}・${QUESTIONS[i].o[QUESTIONS[i].a]}</p>`).join(''):'<p>沒有錯題，太厲害了！</p>'}
+$('#startBtn').addEventListener('click',start);$('#nextBtn').addEventListener('click',next);$('#leaveShopBtn').addEventListener('click',leaveShop);$('#retryBtn').addEventListener('click',()=>{reset();start()});$('#reviewBtn').addEventListener('click',toggleWrong);$$('.shop-btn').forEach(b=>b.addEventListener('click',()=>buy(b.dataset.item)));reset();
+</script>
+</body>
+</html>
